@@ -7,6 +7,6 @@ This can be helpful to a person who is new to these components and is looking fo
 
 This app uses Apis from thedogapi.com. So for this app to function fully, you need to visit this website, sign up and insert your api key in the class ApiClient.java.
 
-The app is written in both Kotlin and Java.
+The app is written in mostly in Java and some in Kotlin.
 
 It also includes few test cases written using Roboelectric that are again very basic in nature.
