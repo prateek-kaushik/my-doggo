@@ -3,14 +3,31 @@ package com.prateek.dogengine
 import android.os.Handler
 import android.os.Looper
 
-class UseCaseHandler : Handler(Looper.getMainLooper()) {
+class UseCaseHandler(private val useCaseScheduler: UseCaseScheduler) {
+    companion object {
+        private var INSTANCE: UseCaseHandler? = null
+
+        @Synchronized
+        fun getInstance(): UseCaseHandler {
+            if (INSTANCE == null) {
+                INSTANCE = UseCaseHandler(UseCaseThreadPoolScheduler())
+            }
+            return INSTANCE!!
+        }
+    }
+
+    private val mHandler = Handler(Looper.getMainLooper())
 
     fun <T : UseCase.RequestData, R : UseCase.ResponseData>
-            execute(useCase: UseCase<T, R>, requestData: T, callback: UseCase.UseCaseCallback<R>) {
+            execute(
+        useCase: UseCase<T, R>, requestData: T,
+        callback: UseCase.UseCaseCallback<R>
+    ) {
+        useCase.mUseCaseCallback = UiCallback(callback, mHandler)
 
-        useCase.mUseCaseCallback = UiCallback(callback, this)
-
-        useCase.execute(requestData)
+        useCaseScheduler.execute {
+            useCase.execute(requestData)
+        }
     }
 
     private class UiCallback<Q : UseCase.ResponseData>(
@@ -29,6 +46,5 @@ class UseCaseHandler : Handler(Looper.getMainLooper()) {
                 callback.onError(t)
             }
         }
-
     }
 }
