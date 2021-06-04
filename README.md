@@ -1,5 +1,6 @@
 # my-doggo
 A simple app capable of searching through tons of dogs images.
+It uses MVVM with clean architecture. It might seem an overhead for a simple use case but again this project has been created to refer to these patterns.
 
 This is a very basic app just to demonstrate the usage of few concepts like navigation using nav graph, LiveData and ViewModels, Pagination, Data source, ConstraintLayout, 
 Search, Retorfit and Glide.
