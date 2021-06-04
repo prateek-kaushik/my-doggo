@@ -3,7 +3,7 @@ package com.prateek.dogengine
 import com.prateek.dogengine.data.Breed
 import com.prateek.dogengine.data.DogBreedDataSource
 
-class SearchDogBreedsUseCase(val mDataSource: DogBreedDataSource) :
+class SearchDogBreedsUseCase(private val mDataSource: DogBreedDataSource) :
     UseCase<SearchDogBreedsUseCase.RequestData, SearchDogBreedsUseCase.ResponseData>() {
 
     class RequestData(val query: String) : UseCase.RequestData()
@@ -22,7 +22,6 @@ class SearchDogBreedsUseCase(val mDataSource: DogBreedDataSource) :
                 override fun onError(t: Throwable) {
                     mUseCaseCallback?.onError(t)
                 }
-
             })
     }
 }

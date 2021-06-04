@@ -20,9 +20,11 @@ class UseCaseHandler(private val useCaseScheduler: UseCaseScheduler) {
 
     fun <T : UseCase.RequestData, R : UseCase.ResponseData>
             execute(
-        useCase: UseCase<T, R>, requestData: T,
+        useCase: UseCase<T, R>,
+        requestData: T,
         callback: UseCase.UseCaseCallback<R>
     ) {
+        useCase.mRequestData = requestData
         useCase.mUseCaseCallback = UiCallback(callback, mHandler)
 
         useCaseScheduler.execute {

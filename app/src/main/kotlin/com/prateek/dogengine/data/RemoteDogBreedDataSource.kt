@@ -1,13 +1,14 @@
 package com.prateek.dogengine.data
 
+import com.prateek.dogengine.apis.ApiClient
 import com.prateek.dogengine.apis.ApiService
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class RemoteDogBreedDataSource(
-    private val mApiService: ApiService
-) {
+class RemoteDogBreedDataSource {
+    private val mApiService = ApiClient.getClient().create(ApiService::class.java)
+
     fun searchDogBreeds(query: String, callback: DogBreedDataSource.BreedsLoadCallback) {
 
         val call: Call<List<Breed>> = mApiService.searchBreeds(query);

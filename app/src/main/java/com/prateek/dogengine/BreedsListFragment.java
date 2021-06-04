@@ -19,7 +19,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.prateek.dogengine.adapters.BreedsListAdapter;
+import com.prateek.dogengine.data.DogBreedsRepository;
+import com.prateek.dogengine.data.RemoteDogBreedDataSource;
 import com.prateek.dogengine.viewmodel.BreedViewModel;
+import com.prateek.dogengine.viewmodel.BreedViewModelFactory;
 
 /**
  * Fragment to display list of dog breeds based on query searched by user
@@ -75,7 +78,9 @@ public class BreedsListFragment extends Fragment {
     }
 
     private void setupBreedListObserver(BreedsListAdapter adapter) {
-        mViewModel = new ViewModelProvider(this).get(BreedViewModel.class);
+        mViewModel = new ViewModelProvider(this,
+                new BreedViewModelFactory()).get(BreedViewModel.class);
+
         mViewModel.getBreeds().observe(getViewLifecycleOwner(), breeds -> {
             //hide any error that might have be shown in previous request
             mErrorView.setVisibility(View.GONE);
@@ -126,6 +131,10 @@ public class BreedsListFragment extends Fragment {
         inflater.inflate(R.menu.search_menu, menu);
         final MenuItem menuItem = menu.findItem(R.id.action_search);
         final SearchView searchView = (SearchView) menuItem.getActionView();
+
+        SearchDogBreedsUseCase searchUseCase = new SearchDogBreedsUseCase(
+                new DogBreedsRepository(new RemoteDogBreedDataSource()));
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -136,7 +145,7 @@ public class BreedsListFragment extends Fragment {
                     //show the loading view
                     mLoadingView.setVisibility(View.VISIBLE);
                     //make a search request to fetch data based on query entered by user in the search view
-                    mViewModel.searchBreeds(query);
+                    mViewModel.searchBreeds(searchUseCase, query);
                     //clear search view focus to hide the soft keyboard
                     searchView.clearFocus();
                 }
