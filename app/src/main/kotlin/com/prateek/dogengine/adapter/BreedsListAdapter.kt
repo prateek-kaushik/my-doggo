@@ -18,8 +18,8 @@ class BreedsListAdapter : RecyclerView.Adapter<BreedsListAdapter.ViewHolder>() {
     }
 
     fun clear() {
-        if (mData != null) {
-            mData!!.clear()
+        mData?.let {
+            it.clear()
             notifyDataSetChanged()
         }
     }

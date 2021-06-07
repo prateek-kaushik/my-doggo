@@ -8,9 +8,9 @@ import retrofit2.http.Query
 
 interface ApiService {
     @GET("/v1/breeds/search")
-    fun searchBreeds(@Query("q") query: String): Call<List<Breed>>
+    fun searchBreeds(@Query("q") query: String): Call<List<Breed>?>
 
     @GET("/v1/images/search")
     fun searchImages(@Query("breed_id") breedId: String, @Query("page") page: Int,
-                     @Query("limit") pageSize: Int): Call<List<BreedImage>>?
+                     @Query("limit") pageSize: Int): Call<List<BreedImage>?>
 }

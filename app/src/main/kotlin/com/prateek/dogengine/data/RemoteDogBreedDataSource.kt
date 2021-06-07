@@ -11,15 +11,15 @@ class RemoteDogBreedDataSource {
 
     fun searchDogBreeds(query: String, callback: DogBreedDataSource.BreedsLoadCallback) {
 
-        val call: Call<List<Breed>> = mApiService.searchBreeds(query);
+        val call: Call<List<Breed>?> = mApiService.searchBreeds(query);
 
-        call.enqueue(object : Callback<List<Breed>> {
-            override fun onResponse(call: Call<List<Breed>>, response: Response<List<Breed>>) {
+        call.enqueue(object : Callback<List<Breed>?> {
+            override fun onResponse(call: Call<List<Breed>?>, response: Response<List<Breed>?>) {
                 response.body()?.let { callback.onBreedsLoaded(it) }
                     ?: callback.onError(Throwable("Null list received"))
             }
 
-            override fun onFailure(call: Call<List<Breed>>, t: Throwable) {
+            override fun onFailure(call: Call<List<Breed>?>, t: Throwable) {
                 callback.onError(t)
             }
         })
