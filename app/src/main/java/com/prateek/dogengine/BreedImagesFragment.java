@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.bumptech.glide.Glide;
-import com.prateek.dogengine.adapters.BreedImagesListAdapter;
+import com.prateek.dogengine.adapter.BreedImagesListAdapter;
 import com.prateek.dogengine.data.Breed;
 import com.prateek.dogengine.viewmodel.BreedImageViewModelFactory;
 import com.prateek.dogengine.viewmodel.BreedImagesViewModel;

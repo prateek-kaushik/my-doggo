@@ -3,7 +3,7 @@ package com.prateek.dogengine.data;
 import androidx.lifecycle.MutableLiveData;
 import androidx.paging.DataSource;
 
-public class BreedImageDataSourceFactory extends DataSource.Factory {
+public class BreedImageDataSourceFactory extends DataSource.Factory<Integer, BreedImage> {
     private BreedImageDataSource breedImageDataSource;
     private MutableLiveData<BreedImageDataSource> liveData;
     private int mBreedId;

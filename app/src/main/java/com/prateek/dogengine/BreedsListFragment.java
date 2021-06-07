@@ -18,7 +18,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.prateek.dogengine.adapters.BreedsListAdapter;
+import com.prateek.dogengine.adapter.BreedsListAdapter;
 import com.prateek.dogengine.data.DogBreedsRepository;
 import com.prateek.dogengine.data.RemoteDogBreedDataSource;
 import com.prateek.dogengine.viewmodel.BreedViewModel;
