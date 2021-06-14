@@ -4,10 +4,5 @@ class DogBreedsRepository(
     private val mRemoteDataSource: RemoteDogBreedDataSource
 ) : DogBreedDataSource {
 
-    override fun searchDogBreeds(
-        query: String,
-        callback: DogBreedDataSource.BreedsLoadCallback
-    ) {
-        mRemoteDataSource.searchDogBreeds(query, callback)
-    }
+    override fun searchDogBreeds(query: String) = mRemoteDataSource.searchDogBreeds(query)
 }

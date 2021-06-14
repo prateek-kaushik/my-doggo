@@ -2,26 +2,21 @@ package com.prateek.dogengine
 
 import com.prateek.dogengine.data.Breed
 import com.prateek.dogengine.data.DogBreedDataSource
+import io.reactivex.Observable
 
-class SearchDogBreedsUseCase(private val mDataSource: DogBreedDataSource) :
-    UseCase<SearchDogBreedsUseCase.RequestData, SearchDogBreedsUseCase.ResponseData>() {
+class SearchDogBreedsUseCase(
+    private val mDataSource: DogBreedDataSource
+) : UseCase<SearchDogBreedsUseCase.RequestData, SearchDogBreedsUseCase.ResponseData>() {
+
+    override fun execute(requestData: RequestData): ResponseData {
+        mRequestData = requestData
+
+        return ResponseData(mDataSource.searchDogBreeds(mRequestData.query))
+    }
 
     class RequestData(val query: String) : UseCase.RequestData()
 
-    class ResponseData(val breeds: List<Breed>) : UseCase.ResponseData()
-
-    override fun execute(requestData: RequestData) {
-        mRequestData = requestData
-
-        mDataSource.searchDogBreeds(mRequestData?.query ?: "",
-            object : DogBreedDataSource.BreedsLoadCallback {
-                override fun onBreedsLoaded(breeds: List<Breed>) {
-                    mUseCaseCallback?.onSuccess(ResponseData(breeds))
-                }
-
-                override fun onError(t: Throwable) {
-                    mUseCaseCallback?.onError(t)
-                }
-            })
+    class ResponseData(private val response: Observable<List<Breed>>) : UseCase.ResponseData() {
+        fun getResponse() = response
     }
 }

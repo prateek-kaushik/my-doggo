@@ -1,12 +1,8 @@
 package com.prateek.dogengine.data
 
+import io.reactivex.Observable
+
 interface DogBreedDataSource {
 
-    interface BreedsLoadCallback {
-        fun onBreedsLoaded(breeds: List<Breed>)
-
-        fun onError(t: Throwable)
-    }
-
-    fun searchDogBreeds(query: String, callback: BreedsLoadCallback)
+    fun searchDogBreeds(query: String): Observable<List<Breed>>
 }

@@ -11,17 +11,15 @@ import com.prateek.dogengine.data.Breed
 import com.prateek.dogengine.databinding.ItemBreedBinding
 
 class BreedsListAdapter : RecyclerView.Adapter<BreedsListAdapter.ViewHolder>() {
-    private var mData: MutableList<Breed>? = null
+    private var mData: List<Breed>? = null
 
-    fun setData(data: MutableList<Breed>?) {
+    fun setData(data: List<Breed>?) {
         mData = data
     }
 
     fun clear() {
-        mData?.let {
-            it.clear()
-            notifyDataSetChanged()
-        }
+        mData = mutableListOf()
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

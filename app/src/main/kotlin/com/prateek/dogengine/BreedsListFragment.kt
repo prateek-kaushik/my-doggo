@@ -1,12 +1,12 @@
 package com.prateek.dogengine
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.*
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,6 +16,10 @@ import com.prateek.dogengine.data.DogBreedsRepository
 import com.prateek.dogengine.data.RemoteDogBreedDataSource
 import com.prateek.dogengine.viewmodel.BreedViewModel
 import com.prateek.dogengine.viewmodel.BreedViewModelFactory
+import io.reactivex.Observer
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 
 /**
  * Fragment to display list of dog breeds based on query searched by user
@@ -48,60 +52,57 @@ class BreedsListFragment : Fragment() {
 
         //init view components
         setupUI(view)
-        val adapter = BreedsListAdapter()
 
         //set up observer to observe any changes to our breed list held by our view model
-        setupBreedListObserver(adapter)
-
-        //set up observer to observe any error messages received in our search request response
-        setupErrorObserver(adapter)
+        setupBreedListObserver(BreedsListAdapter())
     }
 
-    private fun setupErrorObserver(adapter: BreedsListAdapter) {
-        mViewModel.getError().observe(viewLifecycleOwner, Observer { s: String? ->
-            //hide the loading view once observer receives an error response to our search request
-            mLoadingView.visibility = View.GONE
-            //clear the list view to remove any items from the UI from previously search result
-            adapter.clear()
-            //show the error view and set the error message
-            mErrorView.visibility = View.VISIBLE
-            mErrorView.text = s
-        })
-    }
-
+    @SuppressLint("CheckResult")
     private fun setupBreedListObserver(adapter: BreedsListAdapter) {
         mViewModel = ViewModelProvider(
             this,
             BreedViewModelFactory()
         ).get(BreedViewModel::class.java)
 
-        mViewModel.getBreeds().observe(
-            viewLifecycleOwner,
-            { breeds: List<Breed>? ->
-                //hide any error that might have be shown in previous request
-                mErrorView.visibility = View.GONE
-
-                /*
-                A null value is intentionally set by us to let the UI know we are about to make a new
-                search request so clear the current UI. Its not  anything necessary but give a nice UX
-                */
-                if (breeds == null) {
-                    adapter.clear()
-                    return@observe
+        mViewModel.getBreeds()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeWith(object : Observer<List<Breed>> {
+                override fun onSubscribe(d: Disposable) {
+                    //TBD
                 }
 
-                //hide the loading view shown during search request
-                mLoadingView.visibility = View.GONE
-                adapter.setData(breeds as MutableList<Breed>?)
-                mRecyclerView.adapter = adapter
+                override fun onNext(list: List<Breed>) {
+                    //hide any error that might have be shown in previous request
+                    mErrorView.visibility = View.GONE
 
-                /*
-                Show a predefined error message to user to let them know that their search query did not
-                yield any result so request them to try again with a different search query.
-                 */
-                if (breeds.isEmpty()) {
-                    mErrorView.setText(R.string.no_breeds_found)
+                    //hide the loading view shown during search request
+                    mLoadingView.visibility = View.GONE
+                    adapter.setData(list)
+                    mRecyclerView.adapter = adapter
+
+                    /*
+                    Show a predefined error message to user to let them know that their search query did not
+                    yield any result so request them to try again with a different search query.
+                     */
+                    if (list.isEmpty()) {
+                        mErrorView.setText(R.string.no_breeds_found)
+                        mErrorView.visibility = View.VISIBLE
+                    }
+                }
+
+                override fun onError(e: Throwable) {
+                    //hide the loading view once observer receives an error response to our search request
+                    mLoadingView.visibility = View.GONE
+                    //clear the list view to remove any items from the UI from previously search result
+                    adapter.clear()
+                    //show the error view and set the error message
                     mErrorView.visibility = View.VISIBLE
+                    mErrorView.text = e.message
+                }
+
+                override fun onComplete() {
+                    //TBD
                 }
             })
     }
