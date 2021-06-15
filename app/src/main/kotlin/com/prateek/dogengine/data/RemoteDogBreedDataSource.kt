@@ -3,25 +3,22 @@ package com.prateek.dogengine.data
 import com.prateek.dogengine.apis.ApiClient
 import com.prateek.dogengine.apis.ApiService
 import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class RemoteDogBreedDataSource {
     private val mApiService = ApiClient.getClient().create(ApiService::class.java)
+    private var mCall: Call<List<Breed>?>? = null
 
     fun searchDogBreeds(query: String, callback: DogBreedDataSource.BreedsLoadCallback) {
+        mCall?.cancel()
 
-        val call: Call<List<Breed>?> = mApiService.searchBreeds(query);
+        mCall = mApiService.searchBreeds(query)
 
-        call.enqueue(object : Callback<List<Breed>?> {
-            override fun onResponse(call: Call<List<Breed>?>, response: Response<List<Breed>?>) {
-                response.body()?.let { callback.onBreedsLoaded(it) }
-                    ?: callback.onError(Throwable("Null list received"))
+        try {
+            mCall?.execute()?.body()?.apply {
+                callback.onBreedsLoaded(this)
             }
-
-            override fun onFailure(call: Call<List<Breed>?>, t: Throwable) {
-                callback.onError(t)
-            }
-        })
+        } catch (e: Throwable) {
+            callback.onError(e)
+        }
     }
 }

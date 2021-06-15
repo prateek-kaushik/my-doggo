@@ -1,12 +1,14 @@
 package com.prateek.dogengine.viewmodel
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.prateek.dogengine.SearchDogBreedsUseCase
 import com.prateek.dogengine.UseCase
 import com.prateek.dogengine.UseCaseHandler
 import com.prateek.dogengine.data.Breed
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * ViewModel class for our Dog Breed list.
@@ -18,13 +20,9 @@ class BreedViewModel(private val mUseCaseHandler: UseCaseHandler) : ViewModel() 
     private var mBreedList: MutableLiveData<List<Breed>> = MutableLiveData()
     private var mError: MutableLiveData<String> = MutableLiveData()
 
-    fun getBreeds(): LiveData<List<Breed>> {
-        return mBreedList
-    }
+    fun getBreeds() = mBreedList
 
-    fun getError(): LiveData<String?> {
-        return mError
-    }
+    fun getError() = mError
 
     fun searchBreeds(
         useCase: SearchDogBreedsUseCase,
@@ -34,15 +32,21 @@ class BreedViewModel(private val mUseCaseHandler: UseCaseHandler) : ViewModel() 
 
         val requestData = SearchDogBreedsUseCase.RequestData(query)
 
-        mUseCaseHandler.execute(useCase, requestData,
-            object : UseCase.UseCaseCallback<SearchDogBreedsUseCase.ResponseData> {
-                override fun onSuccess(response: SearchDogBreedsUseCase.ResponseData) {
-                    mBreedList.postValue(response.breeds)
-                }
+        viewModelScope.launch(Dispatchers.IO) {
+            mUseCaseHandler.execute(useCase, requestData,
+                object : UseCase.UseCaseCallback<SearchDogBreedsUseCase.ResponseData> {
+                    override fun onSuccess(response: SearchDogBreedsUseCase.ResponseData) {
+                        launch(Dispatchers.Main) {
+                            mBreedList.value = response.breeds
+                        }
+                    }
 
-                override fun onError(t: Throwable) {
-                    mError.postValue(t.message)
-                }
-            })
+                    override fun onError(t: Throwable) {
+                        launch(Dispatchers.Main) {
+                            mError.value = t.message
+                        }
+                    }
+                })
+        }
     }
 }
