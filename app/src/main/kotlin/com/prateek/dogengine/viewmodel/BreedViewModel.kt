@@ -21,6 +21,27 @@ class BreedViewModel(private val mUseCaseHandler: UseCaseHandler) : ViewModel() 
     private var mBreedList: PublishSubject<List<Breed>> = PublishSubject.create()
     private var mDisposable: Disposable? = null
 
+    private val mObserver: Observer<List<Breed>> = object : Observer<List<Breed>> {
+        override fun onSubscribe(d: Disposable) {
+            //cancel any previous search request
+            mDisposable?.dispose()
+
+            mDisposable = d
+        }
+
+        override fun onNext(list: List<Breed>) {
+            mBreedList.onNext(list)
+        }
+
+        override fun onError(e: Throwable) {
+            mBreedList.onError(e)
+        }
+
+        override fun onComplete() {
+            //nothing to do
+        }
+    }
+
     fun getBreeds(): Observable<List<Breed>> = mBreedList
 
     fun searchBreeds(
@@ -31,25 +52,10 @@ class BreedViewModel(private val mUseCaseHandler: UseCaseHandler) : ViewModel() 
 
         val response = mUseCaseHandler.execute(useCase, requestData).getResponse()
 
-        response.subscribeOn(Schedulers.io())
+        response
+            .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribeWith(object : Observer<List<Breed>> {
-                override fun onSubscribe(d: Disposable) {
-                    mDisposable = d
-                }
-
-                override fun onNext(list: List<Breed>) {
-                    mBreedList.onNext(list)
-                }
-
-                override fun onError(e: Throwable) {
-                    mBreedList.onError(e)
-                }
-
-                override fun onComplete() {
-                    //nothing to do
-                }
-            })
+            .subscribeWith(mObserver)
     }
 
     override fun onCleared() {
